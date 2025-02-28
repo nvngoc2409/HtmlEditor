@@ -60,7 +60,7 @@ public struct HtmlEditorView: UIViewRepresentable {
     let webView = WKWebView(frame: .zero, configuration: config)
     webView.navigationDelegate = context.coordinator
 
-    if let htmlPath = Bundle.main.path(forResource: "html-editor", ofType: "html") {
+    if let htmlPath = Bundle.module.path(forResource: "html-editor", ofType: "html") {
       let url = URL(fileURLWithPath: htmlPath)
       webView.loadFileURL(url, allowingReadAccessTo: url.deletingLastPathComponent())
     }
