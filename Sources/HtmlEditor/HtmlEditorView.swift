@@ -20,6 +20,8 @@ public struct HtmlEditorView: UIViewRepresentable {
     var parent: HtmlEditorView
     var webView: WKWebView?
 
+    var isEditing = false
+
     init(_ parent: HtmlEditorView) {
       self.parent = parent
     }
@@ -28,11 +30,12 @@ public struct HtmlEditorView: UIViewRepresentable {
       print("WebView loaded successfully")
       self.webView = webView
       parent.setText(parent.htmlContent, in: webView)
+
       let observeChange = """
-                      $('#summernote').on('summernote.change', function() {
-                          window.webkit.messageHandlers.contentChanged.postMessage($('#summernote').summernote('code'));
-                      });
-                      """
+                            $('#summernote').on('summernote.change', function() {
+                                window.webkit.messageHandlers.contentChanged.postMessage($('#summernote').summernote('code'));
+                            });
+                            """
       webView.evaluateJavaScript(observeChange, completionHandler: nil)
 
       let fixKeyboardScroll = """
@@ -60,6 +63,8 @@ public struct HtmlEditorView: UIViewRepresentable {
         DispatchQueue.main.async {
           self.parent.htmlContent = content
         }
+      } else if message.name == "focusStateChanged", let focused = message.body as? Bool {
+        self.isEditing = focused
       }
     }
   }
@@ -74,6 +79,7 @@ public struct HtmlEditorView: UIViewRepresentable {
 
     let contentController = WKUserContentController()
     contentController.add(context.coordinator, name: "contentChanged")
+    contentController.add(context.coordinator, name: "focusStateChanged")
     config.userContentController = contentController
 
     let webView = WKWebView(frame: .zero, configuration: config)
@@ -88,32 +94,30 @@ public struct HtmlEditorView: UIViewRepresentable {
 
   public func updateUIView(_ webView: WKWebView, context: Context) {
     if let coordinatorWebView = context.coordinator.webView, coordinatorWebView == webView {
-      setText(htmlContent, in: webView)
+      if !context.coordinator.isEditing {
+        setText(htmlContent, in: webView)
+      }
     }
   }
 
   func setText(_ html: String, in webView: WKWebView) {
     let escapedHtml = html.replacingOccurrences(of: "'", with: "\\'")
     let script = """
-        (function() {
-            if (window.jQuery && $.fn.summernote) {
-                var editor = $('#summernote');
-                if (editor.length > 0) {
-                    var currentContent = editor.summernote('code');
-                    if (currentContent !== '\(escapedHtml)') { 
-                        var isFocused = document.activeElement === editor[0];
-                        var selection = isFocused ? editor.summernote('createRange') : null;
-
-                        editor.summernote('code', '\(escapedHtml)');
-
-                        if (isFocused && selection) {
-                            editor.summernote('setRange', selection);
+            (function() {
+                if (window.jQuery && $.fn.summernote) {
+                    var editor = $('#summernote');
+                    if (editor.length > 0) {
+                        var currentContent = editor.summernote('code');
+                        if (currentContent !== '\(escapedHtml)') {
+                            var isFocused = editor.summernote('hasFocus');
+                            if (!isFocused) {
+                               editor.summernote('code', '\(escapedHtml)');
+                            }
                         }
                     }
                 }
-            }
-        })();
-        """
+            })();
+            """
     webView.evaluateJavaScript(script, completionHandler: nil)
   }
 }

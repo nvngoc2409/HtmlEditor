@@ -39,6 +39,12 @@
                       window.android.onTextChanged(contents);
                     }
                   }
+                  onFocus: function() {
+                    window.webkit.messageHandlers.focusStateChanged.postMessage(true);
+                  },
+                  onBlur: function() {
+                    window.webkit.messageHandlers.focusStateChanged.postMessage(false);
+                  }
                 }
     });
   });
