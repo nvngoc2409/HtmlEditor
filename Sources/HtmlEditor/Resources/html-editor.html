@@ -27,6 +27,7 @@
       placeholder: 'Enter a content',
       toolbar: [
                 ['style', ['bold', 'italic', 'underline']],
+                ['font', ['fontname', 'fontsize', 'color']],
                 ['para', ['ul', 'ol', 'paragraph']],
                 ['undo', ['undo', 'redo']]
                 ],
@@ -38,7 +39,7 @@
                     if (window.android) {
                       window.android.onTextChanged(contents);
                     }
-                  }
+                  },
                   onFocus: function() {
                     window.webkit.messageHandlers.focusStateChanged.postMessage(true);
                   },
