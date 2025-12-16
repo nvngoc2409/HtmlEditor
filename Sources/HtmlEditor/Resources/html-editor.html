@@ -38,7 +38,7 @@
                     if (window.android) {
                       window.android.onTextChanged(contents);
                     }
-                  }
+                  },
                   onFocus: function() {
                     window.webkit.messageHandlers.focusStateChanged.postMessage(true);
                   },
