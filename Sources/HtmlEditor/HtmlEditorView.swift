@@ -85,6 +85,7 @@ public struct HtmlEditorView: UIViewRepresentable {
     let webView = WKWebView(frame: .zero, configuration: config)
     webView.navigationDelegate = context.coordinator
     webView.scrollView.isScrollEnabled = true
+    webView.scrollView.bounces = true
     if let htmlPath = Bundle.module.path(forResource: "html-editor", ofType: "html") {
       let url = URL(fileURLWithPath: htmlPath)
       webView.loadFileURL(url, allowingReadAccessTo: url.deletingLastPathComponent())
