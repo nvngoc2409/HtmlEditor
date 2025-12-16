@@ -654,11 +654,12 @@
 
 html, body {
     overflow-x: auto !important;
-    overflow-y: auto !important;
+    overflow-y: hidden !important;
     -webkit-overflow-scrolling: touch;
-    position: relative;
+    height: 100vh !important;
+    min-height: 100vh !important;
+    position: fixed;
     width: 100%;
-    min-height: 100%;
 }
 
 .note-toolbar {
@@ -669,9 +670,9 @@ html, body {
 }
 
 .note-editable {
-    overflow-y: initial !important;
-    min-height: 200px;
-    height: auto !important;
+    overflow-y: auto !important;
+    min-height: 160px;
+    max-height: 60vh;
 }
 
 .note-editor {
