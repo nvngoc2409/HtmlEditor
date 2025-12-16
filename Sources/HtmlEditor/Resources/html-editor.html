@@ -5,55 +5,16 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <meta name="description" content="IOS Html Editor">
-    <title>IOS Html Editor</title>
+	<title>IOS Html Editor</title>
 
-    <link href="bootstrap.min.css" rel="stylesheet">
-    <script src="jquery-2.2.2.min.js"></script>
-    <script src="bootstrap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.18/summernote.min.js"></script>
-
-    <link href="html-editor.css" rel="stylesheet">
-    <script src="html-editor.js"></script>
-
-    <style>
-        /* Sửa lỗi không cuộn được Dropdown trên iOS */
-        .note-editor .dropdown-menu {
-            max-height: 300px !important;    /* Giới hạn chiều cao để kích hoạt scroll */
-            overflow-y: auto !important;      /* Cho phép cuộn dọc */
-            overflow-x: hidden !important;    /* Chặn cuộn ngang không cần thiết */
-            -webkit-overflow-scrolling: touch !important; /* Cuộn mượt trên iOS */
-            z-index: 1050 !important;
-        }
-
-        /* Tối ưu riêng cho bảng màu (Color Palette) */
-        .note-color-palette {
-            padding: 10px !important;
-        }
-
-        /* Đảm bảo dropdown không bị tràn khỏi màn hình điện thoại */
-        @media screen and (max-width: 480px) {
-            .note-editor .dropdown-menu {
-                min-width: 150px !important;
-                position: fixed !important; /* Giúp menu đứng yên khi webview cuộn */
-                top: auto !important;
-                left: 5% !important;
-                right: 5% !important;
-                width: 90% !important;
-            }
-        }
-
-        /* Xử lý khoảng trống phía dưới */
-        body, html {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-            overflow: hidden; /* Ngăn chặn cả trang web bị cuộn lồng nhau */
-        }
-
-        #summernote {
-            height: 100%;
-        }
-    </style>
+<!-- include libraries(jQuery, bootstrap) -->
+<link href="bootstrap.min.css" rel="stylesheet">
+<script src="jquery-2.2.2.min.js"></script> 
+<script src="bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.18/summernote.min.js"></script>
+<!-- include html-editor css/js-->
+<link href="html-editor.css" rel="stylesheet">
+<script src="html-editor.js"></script>
 </head>
 <body>
 <div id="summernote" style="width:100%;height:100%"></div>
@@ -61,48 +22,30 @@
   $(document).ready(function() {
     document.execCommand("styleWithCSS", false, true);
     $('#summernote').summernote({
-      height: '100vh', // Sử dụng chiều cao view-port để mượt hơn trên mobile
+      height: 1200,
       focus: false,
       placeholder: 'Enter a content',
       toolbar: [
-                ['style', ['style', 'bold', 'italic', 'underline', 'strikethrough', 'clear']],
-                ['font', ['fontname', 'fontsize', 'color']],
-                ['para', ['ul', 'ol', 'paragraph', 'height']],
-                ['table', ['table']],
-                ['insert', ['link', 'picture', 'video']],
-                ['view', ['fullscreen', 'codeview', 'help']],
+                ['style', ['bold', 'italic', 'underline']],
+                ['para', ['ul', 'ol', 'paragraph']],
                 ['undo', ['undo', 'redo']]
                 ],
                 tooltip: false,
                 callbacks: {
                   onInit: function(e) {
-                    // Loại bỏ tooltip vì chúng gây lỗi hiển thị trên touch screen
-                    $('.note-control-selection').hide();
                   },
                   onChange: function(contents, $editable) {
-                    // Gửi dữ liệu về cho Swift qua Message Handler
-                    if (window.webkit && window.webkit.messageHandlers.contentChanged) {
-                        window.webkit.messageHandlers.contentChanged.postMessage(contents);
-                    }
-                  },
-                  onFocus: function() {
-                    if (window.webkit && window.webkit.messageHandlers.focusStateChanged) {
-                        window.webkit.messageHandlers.focusStateChanged.postMessage(true);
-                    }
-                  },
-                  onBlur: function() {
-                    if (window.webkit && window.webkit.messageHandlers.focusStateChanged) {
-                        window.webkit.messageHandlers.focusStateChanged.postMessage(false);
+                    if (window.android) {
+                      window.android.onTextChanged(contents);
                     }
                   }
+                  onFocus: function() {
+                    window.webkit.messageHandlers.focusStateChanged.postMessage(true);
+                  },
+                  onBlur: function() {
+                    window.webkit.messageHandlers.focusStateChanged.postMessage(false);
+                  }
                 }
-    });
-
-    // Ngăn chặn sự kiện cuộn của dropdown lan ra ngoài Webview
-    $(document).on('shown.bs.dropdown', function (e) {
-        $('.dropdown-menu').on('touchstart touchmove', function(ev) {
-            ev.stopPropagation();
-        });
     });
   });
 </script>

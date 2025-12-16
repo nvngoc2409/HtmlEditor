@@ -56,25 +56,6 @@ public struct HtmlEditorView: UIViewRepresentable {
       });
       """
       webView.evaluateJavaScript(fixKeyboardScroll, completionHandler: nil)
-      
-      let fixDropdownScrolling = """
-      (function() {
-          function makeDropdownsScrollable() {
-              var dropdowns = document.querySelectorAll('.dropdown-menu');
-              dropdowns.forEach(function(dropdown) {
-                  if (dropdown.scrollHeight > 300) {
-                      dropdown.style.maxHeight = '300px';
-                      dropdown.style.overflowY = 'auto';
-                      dropdown.style.webkitOverflowScrolling = 'touch';
-                  }
-              });
-          }
-          
-          setInterval(makeDropdownsScrollable, 200);
-          $(document).on('shown.bs.dropdown', makeDropdownsScrollable);
-      })();
-      """
-      webView.evaluateJavaScript(fixDropdownScrolling, completionHandler: nil)
     }
 
     public func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
@@ -104,9 +85,6 @@ public struct HtmlEditorView: UIViewRepresentable {
     let webView = WKWebView(frame: .zero, configuration: config)
     webView.navigationDelegate = context.coordinator
     webView.scrollView.isScrollEnabled = true
-    webView.scrollView.bounces = false
-    // Allow scrolling within dropdown menus
-    webView.scrollView.contentInsetAdjustmentBehavior = .automatic
     if let htmlPath = Bundle.module.path(forResource: "html-editor", ofType: "html") {
       let url = URL(fileURLWithPath: htmlPath)
       webView.loadFileURL(url, allowingReadAccessTo: url.deletingLastPathComponent())

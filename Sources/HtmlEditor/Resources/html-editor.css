@@ -686,10 +686,3 @@ html, body {
     right: auto !important;
     transform: translate3d(0px, 0px, 0px) !important;
 }
-
-/* Make dropdown menus scrollable - simple fix */
-.dropdown-menu {
-    max-height: 300px !important;
-    overflow-y: auto !important;
-    -webkit-overflow-scrolling: touch !important;
-}
